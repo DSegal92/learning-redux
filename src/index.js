@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { combineReducers } from 'redux';
 
 const { Component } = React;
+import { connect, Provider } from 'react-redux';
 
 const todo = (state, action) => {
   switch(action.type) {
@@ -233,6 +234,8 @@ const TodoApp = ({ store }) => (
 import { createStore} from 'redux';
 
 ReactDOM.render(
-  <TodoApp store={createStore(todoApp)} />,
+  <Provider store={createStore(todoApp)}>
+    <TodoApp/>
+  </Provider>,
   document.getElementById('root')
 );

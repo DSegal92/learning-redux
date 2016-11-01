@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { combineReducers } from 'redux';
-
-const { Component } = React;
+import { createStore, combineReducers } from 'redux';
 import { connect, Provider } from 'react-redux';
 
+// Reducers
 const todo = (state, action) => {
   switch(action.type) {
     case 'ADD_TODO':
@@ -29,10 +28,7 @@ const todo = (state, action) => {
 const todos = (state = [], action) => {
   switch (action.type){
     case 'ADD_TODO':
-      return [
-        ...state,
-        todo(undefined, action)
-      ];
+      return [...state, todo(undefined, action)];
     case 'TOGGLE_TODO':
       return state.map(t => todo(t, action));
     default:
@@ -40,10 +36,7 @@ const todos = (state = [], action) => {
   }
 };
 
-const visibilityFilter = (
-  state = 'SHOW_ALL',
-  action
-) => {
+const visibilityFilter = (state = 'SHOW_ALL', action) => {
   switch(action.type) {
     case 'SET_VISIBILITY_FILTER':
       return action.filter
@@ -52,12 +45,31 @@ const visibilityFilter = (
   }
 };
 
-const todoApp = combineReducers({
-  todos,
-  visibilityFilter
-})
+const todoApp = combineReducers({ todos, visibilityFilter })
 
+// Action Creators
+const setVisibilityFilter = (filter) => {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter: filter
+  }
+}
 
+const toggleTodo = (id) => {
+  return {
+    type: 'TOGGLE_TODO',
+    id
+  }
+}
+
+let nextTodoId = 0;
+const addTodo = (text) => {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text: text
+  }
+}
 
 // Components
 const Link = ({ active, children, onClick }) => {
@@ -72,11 +84,7 @@ const Link = ({ active, children, onClick }) => {
   )
 };
 
-
-const getVisibleTodos = (
-  todos,
-  filter
-) => {
+const getVisibleTodos = (todos, filter) => {
   switch(filter) {
     case 'SHOW_ALL':
       return todos;
@@ -89,34 +97,24 @@ const getVisibleTodos = (
   }
 }
 
-let nextTodoId = 0;
-
-const Todo = ({
-  onClick,
-  completed,
-  text
-}) => (
+const Todo = ({ onClick, completed, text }) => (
   <li onClick={onClick}
       style={{ textDecoration: completed ? 'line-through' : 'none' }}>
     {text}
   </li>
 );
 
-const TodoList = ({
-  todos,
-  onTodoClick
-}) => (
-    <ul>
-      { todos.map(todo =>
-         <Todo
-           key={todo.id}
-           {...todo}
-           onClick={() => onTodoClick(todo.id)}
-          />
-       )}
-    </ul>
+const TodoList = ({ todos, onTodoClick }) => (
+  <ul>
+    { todos.map(todo =>
+       <Todo
+         key={todo.id}
+         {...todo}
+         onClick={() => onTodoClick(todo.id)}
+        />
+     )}
+  </ul>
 )
-
 
 let AddTodo = ({ dispatch }) => {
   let input;
@@ -188,6 +186,7 @@ const VisibleTodoList = connect(
   mapDispatchToTodoListProps
 )(TodoList);
 
+//DOM
 ReactDOM.render(
   <Provider store={createStore(todoApp)}>
     <TodoApp/>
